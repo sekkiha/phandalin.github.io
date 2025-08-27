@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciamento de Phandalin</title>
+    <title>Tracker de Recursos - Phandalin</title>
     <style>
         :root {
             --color-dark: #3c2c23;
@@ -15,6 +15,9 @@
             --color-population: #2196f3;
             --color-gold: #ffd700;
             --color-taxes: #9c27b0;
+            --color-lifestyle: #ff9800;
+            --color-upkeep: #795548;
+            --color-profit: #009688;
         }
         
         body {
@@ -27,7 +30,7 @@
         }
         
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
             background-color: rgba(255, 253, 248, 0.9);
             padding: 20px;
@@ -105,27 +108,38 @@
         .population { color: var(--color-population); }
         .gold { color: var(--color-gold); }
         .taxes { color: var(--color-taxes); }
+        .lifestyle { color: var(--color-lifestyle); }
+        .upkeep { color: var(--color-upkeep); }
+        .profit { color: var(--color-profit); }
         
         .classes-table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
             background-color: white;
+            font-size: 0.9em;
         }
         
         .classes-table th, .classes-table td {
             border: 1px solid var(--color-medium);
-            padding: 10px;
+            padding: 8px;
             text-align: center;
         }
         
         .classes-table th {
             background-color: var(--color-medium);
             color: white;
+            position: sticky;
+            top: 0;
         }
         
         .classes-table tr:nth-child(even) {
             background-color: var(--color-light);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
         }
         
         .tax-info {
@@ -178,9 +192,24 @@
             background-color: #f44336;
         }
         
-        @media (max-width: 600px) {
+        .info-text {
+            font-style: italic;
+            color: var(--color-medium);
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+        
+        @media (max-width: 768px) {
             .stats-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .classes-table {
+                font-size: 0.8em;
+            }
+            
+            .classes-table th, .classes-table td {
+                padding: 5px;
             }
         }
     </style>
@@ -206,6 +235,7 @@
                 <div class="stat-value prosperity" id="prosperity-value">25</div>
                 <input type="range" class="stat-slider" id="prosperity-slider" min="0" max="100" value="25">
                 <div>0 (Colapso Total) — 100 (Máxima Prosperidade)</div>
+                <div class="info-text" id="prosperity-bonus">Bônus de Renda: +12.5%</div>
             </div>
             
             <div class="stat-card">
@@ -236,71 +266,82 @@
         </div>
         
         <h2>Distribuição de Classes Sociais</h2>
-        <table class="classes-table">
-            <thead>
-                <tr>
-                    <th>Classe Social</th>
-                    <th>% da População</th>
-                    <th>Quantidade</th>
-                    <th>Renda Mínima/Mês</th>
-                    <th>Imposto Base/Mês</th>
-                    <th>Imposto Atual/Mês</th>
-                    <th>Total Mensal</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Pobre</td>
-                    <td><input type="number" class="percent-input" id="poor-percent" min="0" max="100" value="60">%</td>
-                    <td id="poor-count">48</td>
-                    <td>6 gp</td>
-                    <td>0.6 gp</td>
-                    <td id="poor-tax">0.6 gp</td>
-                    <td id="poor-total">28.8 gp</td>
-                </tr>
-                <tr>
-                    <td>Modesta</td>
-                    <td><input type="number" class="percent-input" id="modest-percent" min="0" max="100" value="30">%</td>
-                    <td id="modest-count">24</td>
-                    <td>30 gp</td>
-                    <td>3 gp</td>
-                    <td id="modest-tax">3 gp</td>
-                    <td id="modest-total">72 gp</td>
-                </tr>
-                <tr>
-                    <td>Confortável</td>
-                    <td><input type="number" class="percent-input" id="comfortable-percent" min="0" max="100" value="8">%</td>
-                    <td id="comfortable-count">6</td>
-                    <td>60 gp</td>
-                    <td>6 gp</td>
-                    <td id="comfortable-tax">6 gp</td>
-                    <td id="comfortable-total">36 gp</td>
-                </tr>
-                <tr>
-                    <td>Rica</td>
-                    <td><input type="number" class="percent-input" id="wealthy-percent" min="0" max="100" value="2">%</td>
-                    <td id="wealthy-count">2</td>
-                    <td>120 gp</td>
-                    <td>12 gp</td>
-                    <td id="wealthy-tax">12 gp</td>
-                    <td id="wealthy-total">24 gp</td>
-                </tr>
-                <tr>
-                    <td>Aristocrática</td>
-                    <td><input type="number" class="percent-input" id="aristocratic-percent" min="0" max="100" value="0">%</td>
-                    <td id="aristocratic-count">0</td>
-                    <td>300 gp</td>
-                    <td>30 gp</td>
-                    <td id="aristocratic-tax">30 gp</td>
-                    <td id="aristocratic-total">0 gp</td>
-                </tr>
-                <tr>
-                    <td colspan="5"><strong>Total</strong></td>
-                    <td id="total-tax-per">-</td>
-                    <td id="total-tax">15.6 gp</td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="table-container">
+            <table class="classes-table">
+                <thead>
+                    <tr>
+                        <th>Classe Social</th>
+                        <th>% da População</th>
+                        <th>Quantidade</th>
+                        <th>Renda Mínima/Mês</th>
+                        <th>Lifestyle/Mês</th>
+                        <th>Upkeep/Mês</th>
+                        <th>Taxes/Mês</th>
+                        <th>Profit/Mês</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Pobre</td>
+                        <td><input type="number" class="percent-input" id="poor-percent" min="0" max="100" value="60">%</td>
+                        <td id="poor-count">48</td>
+                        <td id="poor-income">6 gp</td>
+                        <td id="poor-lifestyle">3 gp</td>
+                        <td id="poor-upkeep">2 gp</td>
+                        <td id="poor-tax">0.6 gp</td>
+                        <td id="poor-profit">0.4 gp</td>
+                    </tr>
+                    <tr>
+                        <td>Modesta</td>
+                        <td><input type="number" class="percent-input" id="modest-percent" min="0" max="100" value="30">%</td>
+                        <td id="modest-count">24</td>
+                        <td id="modest-income">30 gp</td>
+                        <td id="modest-lifestyle">15 gp</td>
+                        <td id="modest-upkeep">10 gp</td>
+                        <td id="modest-tax">3 gp</td>
+                        <td id="modest-profit">2 gp</td>
+                    </tr>
+                    <tr>
+                        <td>Confortável</td>
+                        <td><input type="number" class="percent-input" id="comfortable-percent" min="0" max="100" value="8">%</td>
+                        <td id="comfortable-count">6</td>
+                        <td id="comfortable-income">60 gp</td>
+                        <td id="comfortable-lifestyle">30 gp</td>
+                        <td id="comfortable-upkeep">20 gp</td>
+                        <td id="comfortable-tax">6 gp</td>
+                        <td id="comfortable-profit">4 gp</td>
+                    </tr>
+                    <tr>
+                        <td>Rica</td>
+                        <td><input type="number" class="percent-input" id="wealthy-percent" min="0" max="100" value="2">%</td>
+                        <td id="wealthy-count">2</td>
+                        <td id="wealthy-income">120 gp</td>
+                        <td id="wealthy-lifestyle">60 gp</td>
+                        <td id="wealthy-upkeep">40 gp</td>
+                        <td id="wealthy-tax">12 gp</td>
+                        <td id="wealthy-profit">8 gp</td>
+                    </tr>
+                    <tr>
+                        <td>Aristocrática</td>
+                        <td><input type="number" class="percent-input" id="aristocratic-percent" min="0" max="100" value="0">%</td>
+                        <td id="aristocratic-count">0</td>
+                        <td id="aristocratic-income">300 gp</td>
+                        <td id="aristocratic-lifestyle">150 gp</td>
+                        <td id="aristocratic-upkeep">100 gp</td>
+                        <td id="aristocratic-tax">30 gp</td>
+                        <td id="aristocratic-profit">20 gp</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"><strong>Total</strong></td>
+                        <td id="total-income">-</td>
+                        <td id="total-lifestyle">-</td>
+                        <td id="total-upkeep">-</td>
+                        <td id="total-tax">15.6 gp</td>
+                        <td id="total-profit">-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         
         <div class="comparison">
             <div>Phandalin Atual: 80 habitantes</div>
@@ -320,6 +361,7 @@
         const populationValue = document.getElementById('population-value');
         const prosperitySlider = document.getElementById('prosperity-slider');
         const prosperityValue = document.getElementById('prosperity-value');
+        const prosperityBonus = document.getElementById('prosperity-bonus');
         const securitySlider = document.getElementById('security-slider');
         const securityValue = document.getElementById('security-value');
         const goldInput = document.getElementById('gold-input');
@@ -346,8 +388,44 @@
             document.getElementById('aristocratic-count')
         ];
         
-        const baseTaxes = [0.6, 3, 6, 12, 30]; // Imposto base para cada classe (a 10%)
-        const baseIncome = [6, 30, 60, 120, 300]; // Renda mínima para cada classe
+        // Valores base (sem bônus de prosperidade)
+        const baseIncomes = [6, 30, 60, 120, 300];
+        const baseLifestyles = [3, 15, 30, 60, 150];
+        const baseUpkeeps = [2, 10, 20, 40, 100];
+        const baseProfits = [0.4, 2, 4, 8, 20];
+        
+        // Elementos para income, lifestyle, upkeep, profit e tax
+        const incomeElements = [
+            document.getElementById('poor-income'),
+            document.getElementById('modest-income'),
+            document.getElementById('comfortable-income'),
+            document.getElementById('wealthy-income'),
+            document.getElementById('aristocratic-income')
+        ];
+        
+        const lifestyleElements = [
+            document.getElementById('poor-lifestyle'),
+            document.getElementById('modest-lifestyle'),
+            document.getElementById('comfortable-lifestyle'),
+            document.getElementById('wealthy-lifestyle'),
+            document.getElementById('aristocratic-lifestyle')
+        ];
+        
+        const upkeepElements = [
+            document.getElementById('poor-upkeep'),
+            document.getElementById('modest-upkeep'),
+            document.getElementById('comfortable-upkeep'),
+            document.getElementById('wealthy-upkeep'),
+            document.getElementById('aristocratic-upkeep')
+        ];
+        
+        const profitElements = [
+            document.getElementById('poor-profit'),
+            document.getElementById('modest-profit'),
+            document.getElementById('comfortable-profit'),
+            document.getElementById('wealthy-profit'),
+            document.getElementById('aristocratic-profit')
+        ];
         
         const taxElements = [
             document.getElementById('poor-tax'),
@@ -357,23 +435,19 @@
             document.getElementById('aristocratic-tax')
         ];
         
-        const totalElements = [
-            document.getElementById('poor-total'),
-            document.getElementById('modest-total'),
-            document.getElementById('comfortable-total'),
-            document.getElementById('wealthy-total'),
-            document.getElementById('aristocratic-total')
-        ];
-        
-        const totalTaxPerElement = document.getElementById('total-tax-per');
+        // Elementos totais
+        const totalIncomeElement = document.getElementById('total-income');
+        const totalLifestyleElement = document.getElementById('total-lifestyle');
+        const totalUpkeepElement = document.getElementById('total-upkeep');
         const totalTaxElement = document.getElementById('total-tax');
+        const totalProfitElement = document.getElementById('total-profit');
         
         // Sincronizar inputs de população
         populationInput.addEventListener('input', function() {
             populationSlider.value = this.value;
             populationValue.textContent = this.value;
             updatePopulationCounts();
-            calculateTaxes();
+            calculateEconomy();
             saveData();
         });
         
@@ -381,13 +455,15 @@
             populationInput.value = this.value;
             populationValue.textContent = this.value;
             updatePopulationCounts();
-            calculateTaxes();
+            calculateEconomy();
             saveData();
         });
         
         // Atualizar sliders de prosperidade e segurança
         prosperitySlider.addEventListener('input', function() {
             prosperityValue.textContent = this.value;
+            updateProsperityBonus();
+            calculateEconomy();
             saveData();
         });
         
@@ -406,7 +482,7 @@
         taxRateSlider.addEventListener('input', function() {
             const taxRate = parseInt(this.value);
             taxRateValue.textContent = `${taxRate}%`;
-            calculateTaxes();
+            calculateEconomy();
             saveData();
         });
         
@@ -456,7 +532,8 @@
                 document.getElementById('notes').value = '';
                 
                 updatePopulationCounts();
-                calculateTaxes();
+                updateProsperityBonus();
+                calculateEconomy();
             }
         });
         
@@ -483,34 +560,69 @@
             }
         }
         
-        // Calcular impostos com base na taxa atual
-        function calculateTaxes() {
+        // Atualizar bônus de prosperidade
+        function updateProsperityBonus() {
+            const prosperity = parseInt(prosperitySlider.value);
+            const prosperityMultiplier = Math.floor(prosperity / 5) * 0.025;
+            prosperityBonus.textContent = `Bônus de Renda: +${(prosperityMultiplier * 100).toFixed(1)}%`;
+        }
+        
+        // Calcular economia com base na prosperidade e taxa de impostos
+        function calculateEconomy() {
             const taxRate = parseInt(taxRateSlider.value) || 10;
-            const taxMultiplier = taxRate / 10; // Base é 10%
+            const prosperity = parseInt(prosperitySlider.value);
+            const prosperityMultiplier = 1 + (Math.floor(prosperity / 5) * 0.025);
             
-            let totalRevenue = 0;
+            let totalIncome = 0;
+            let totalLifestyle = 0;
+            let totalUpkeep = 0;
+            let totalTaxRevenue = 0;
+            let totalProfit = 0;
             
             for (let i = 0; i < percentInputs.length; i++) {
                 const count = parseInt(countElements[i].textContent) || 0;
-                const currentTax = baseTaxes[i] * taxMultiplier;
-                const classTotal = currentTax * count;
                 
-                taxElements[i].textContent = `${currentTax.toFixed(1)} gp`;
-                totalElements[i].textContent = `${classTotal.toFixed(1)} gp`;
+                // Calcular valores ajustados pela prosperidade
+                const income = baseIncomes[i] * prosperityMultiplier;
+                const lifestyle = baseLifestyles[i] * prosperityMultiplier;
+                const upkeep = baseUpkeeps[i] * prosperityMultiplier;
+                const baseProfit = baseProfits[i] * prosperityMultiplier;
                 
-                totalRevenue += classTotal;
+                // Calcular impostos (10% da renda é a base, ajustado pela taxa atual)
+                const tax = income * (taxRate / 100);
+                const profit = income - lifestyle - upkeep - tax;
+                
+                // Atualizar displays
+                incomeElements[i].textContent = `${income.toFixed(1)} gp`;
+                lifestyleElements[i].textContent = `${lifestyle.toFixed(1)} gp`;
+                upkeepElements[i].textContent = `${upkeep.toFixed(1)} gp`;
+                taxElements[i].textContent = `${tax.toFixed(1)} gp`;
+                profitElements[i].textContent = `${profit.toFixed(1)} gp`;
+                
+                // Calcular totais
+                totalIncome += income * count;
+                totalLifestyle += lifestyle * count;
+                totalUpkeep += upkeep * count;
+                totalTaxRevenue += tax * count;
+                totalProfit += profit * count;
             }
             
-            taxRevenueValue.textContent = totalRevenue.toFixed(1);
-            totalTaxElement.textContent = `${totalRevenue.toFixed(1)} gp`;
-            totalTaxPerElement.textContent = `(${taxRate}%)`;
+            // Atualizar totais
+            totalIncomeElement.textContent = `${totalIncome.toFixed(1)} gp`;
+            totalLifestyleElement.textContent = `${totalLifestyle.toFixed(1)} gp`;
+            totalUpkeepElement.textContent = `${totalUpkeep.toFixed(1)} gp`;
+            totalTaxElement.textContent = `${totalTaxRevenue.toFixed(1)} gp`;
+            totalProfitElement.textContent = `${totalProfit.toFixed(1)} gp`;
+            
+            // Atualizar arrecadação de impostos
+            taxRevenueValue.textContent = totalTaxRevenue.toFixed(1);
         }
         
         // Adicionar listeners para os inputs de percentual
         for (const input of percentInputs) {
             input.addEventListener('input', function() {
                 updatePopulationCounts();
-                calculateTaxes();
+                calculateEconomy();
                 saveData();
             });
         }
@@ -566,7 +678,8 @@
                 
                 // Atualizar displays
                 updatePopulationCounts();
-                calculateTaxes();
+                updateProsperityBonus();
+                calculateEconomy();
             }
         }
         
@@ -576,7 +689,8 @@
         });
         
         updatePopulationCounts();
-        calculateTaxes();
+        updateProsperityBonus();
+        calculateEconomy();
     </script>
 </body>
 </html>
