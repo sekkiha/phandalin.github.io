@@ -359,4 +359,42 @@
         updatePopulationCounts();
     </script>
 </body>
+    // Salvar dados no localStorage
+function saveData() {
+  const data = {
+    population: populationInput.value,
+    prosperity: prosperitySlider.value,
+    security: securitySlider.value,
+    gold: goldInput.value,
+    taxRate: taxRateSlider.value,
+    notes: document.getElementById('notes').value
+  };
+  localStorage.setItem('phandalinData', JSON.stringify(data));
+}
+
+// Carregar dados do localStorage
+function loadData() {
+  const savedData = localStorage.getItem('phandalinData');
+  if (savedData) {
+    const data = JSON.parse(savedData);
+    populationInput.value = data.population;
+    populationSlider.value = data.population;
+    prosperitySlider.value = data.prosperity;
+    securitySlider.value = data.security;
+    goldInput.value = data.gold;
+    taxRateSlider.value = data.taxRate;
+    document.getElementById('notes').value = data.notes;
+    
+    // Atualizar displays
+    updateAllValues();
+  }
+}
+
+// Adicionar event listeners para salvar quando valores mudarem
+document.querySelectorAll('input, textarea').forEach(input => {
+  input.addEventListener('change', saveData);
+});
+
+// Carregar dados quando a página carregar
+window.addEventListener('load', loadData);
 </html>
