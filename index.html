@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tracker de Recursos - Phandalin</title>
+    <title>Gerenciamento de Phandalin</title>
     <style>
         :root {
             --color-dark: #3c2c23;
@@ -14,6 +14,7 @@
             --color-security: #f44336;
             --color-population: #2196f3;
             --color-gold: #ffd700;
+            --color-taxes: #9c27b0;
         }
         
         body {
@@ -103,6 +104,7 @@
         .security { color: var(--color-security); }
         .population { color: var(--color-population); }
         .gold { color: var(--color-gold); }
+        .taxes { color: var(--color-taxes); }
         
         .classes-table {
             width: 100%;
@@ -126,6 +128,14 @@
             background-color: var(--color-light);
         }
         
+        .tax-info {
+            background-color: #f3e5f5;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid var(--color-taxes);
+            margin: 20px 0;
+        }
+        
         .notes-section {
             margin-top: 30px;
         }
@@ -146,6 +156,26 @@
             margin-top: 20px;
             font-size: 0.9em;
             color: var(--color-medium);
+        }
+        
+        .button {
+            background-color: var(--color-medium);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1em;
+            margin-top: 10px;
+        }
+        
+        .button:hover {
+            background-color: var(--color-dark);
+        }
+        
+        .reset-button {
+            background-color: #f44336;
         }
         
         @media (max-width: 600px) {
@@ -192,6 +222,19 @@
             </div>
         </div>
         
+        <div class="tax-info">
+            <h2>Sistema de Impostos</h2>
+            <div class="stat-title">Taxa de Impostos</div>
+            <div class="stat-value taxes" id="tax-rate-value">10%</div>
+            <input type="range" class="stat-slider" id="tax-rate-slider" min="5" max="30" value="10">
+            <div>5% (Baixo) — 30% (Alto)</div>
+            
+            <div class="stat-title">Arrecadação Mensal de Impostos</div>
+            <div class="stat-value taxes" id="tax-revenue-value">15.6 GP</div>
+            <button class="button" id="collect-taxes">Coletar Impostos</button>
+            <button class="button reset-button" id="reset-data">Resetar Dados</button>
+        </div>
+        
         <h2>Distribuição de Classes Sociais</h2>
         <table class="classes-table">
             <thead>
@@ -200,10 +243,9 @@
                     <th>% da População</th>
                     <th>Quantidade</th>
                     <th>Renda Mínima/Mês</th>
-                    <th>Estilo de Vida/Mês</th>
-                    <th>Manutenção/Mês</th>
-                    <th>Impostos/Mês</th>
-                    <th>Lucro/Mês</th>
+                    <th>Imposto Base/Mês</th>
+                    <th>Imposto Atual/Mês</th>
+                    <th>Total Mensal</th>
                 </tr>
             </thead>
             <tbody>
@@ -212,50 +254,50 @@
                     <td><input type="number" class="percent-input" id="poor-percent" min="0" max="100" value="60">%</td>
                     <td id="poor-count">48</td>
                     <td>6 gp</td>
-                    <td>3 gp</td>
-                    <td>2 gp</td>
                     <td>0.6 gp</td>
-                    <td>0.4 gp</td>
+                    <td id="poor-tax">0.6 gp</td>
+                    <td id="poor-total">28.8 gp</td>
                 </tr>
                 <tr>
                     <td>Modesta</td>
                     <td><input type="number" class="percent-input" id="modest-percent" min="0" max="100" value="30">%</td>
                     <td id="modest-count">24</td>
                     <td>30 gp</td>
-                    <td>15 gp</td>
-                    <td>10 gp</td>
                     <td>3 gp</td>
-                    <td>2 gp</td>
+                    <td id="modest-tax">3 gp</td>
+                    <td id="modest-total">72 gp</td>
                 </tr>
                 <tr>
                     <td>Confortável</td>
                     <td><input type="number" class="percent-input" id="comfortable-percent" min="0" max="100" value="8">%</td>
                     <td id="comfortable-count">6</td>
                     <td>60 gp</td>
-                    <td>30 gp</td>
-                    <td>20 gp</td>
                     <td>6 gp</td>
-                    <td>4 gp</td>
+                    <td id="comfortable-tax">6 gp</td>
+                    <td id="comfortable-total">36 gp</td>
                 </tr>
                 <tr>
                     <td>Rica</td>
                     <td><input type="number" class="percent-input" id="wealthy-percent" min="0" max="100" value="2">%</td>
                     <td id="wealthy-count">2</td>
                     <td>120 gp</td>
-                    <td>60 gp</td>
-                    <td>40 gp</td>
                     <td>12 gp</td>
-                    <td>8 gp</td>
+                    <td id="wealthy-tax">12 gp</td>
+                    <td id="wealthy-total">24 gp</td>
                 </tr>
                 <tr>
                     <td>Aristocrática</td>
                     <td><input type="number" class="percent-input" id="aristocratic-percent" min="0" max="100" value="0">%</td>
                     <td id="aristocratic-count">0</td>
                     <td>300 gp</td>
-                    <td>150 gp</td>
-                    <td>100 gp</td>
                     <td>30 gp</td>
-                    <td>20 gp</td>
+                    <td id="aristocratic-tax">30 gp</td>
+                    <td id="aristocratic-total">0 gp</td>
+                </tr>
+                <tr>
+                    <td colspan="5"><strong>Total</strong></td>
+                    <td id="total-tax-per">-</td>
+                    <td id="total-tax">15.6 gp</td>
                 </tr>
             </tbody>
         </table>
@@ -282,6 +324,11 @@
         const securityValue = document.getElementById('security-value');
         const goldInput = document.getElementById('gold-input');
         const goldValue = document.getElementById('gold-value');
+        const taxRateSlider = document.getElementById('tax-rate-slider');
+        const taxRateValue = document.getElementById('tax-rate-value');
+        const taxRevenueValue = document.getElementById('tax-revenue-value');
+        const collectTaxesButton = document.getElementById('collect-taxes');
+        const resetButton = document.getElementById('reset-data');
         
         const percentInputs = [
             document.getElementById('poor-percent'),
@@ -299,36 +346,123 @@
             document.getElementById('aristocratic-count')
         ];
         
+        const baseTaxes = [0.6, 3, 6, 12, 30]; // Imposto base para cada classe (a 10%)
+        const baseIncome = [6, 30, 60, 120, 300]; // Renda mínima para cada classe
+        
+        const taxElements = [
+            document.getElementById('poor-tax'),
+            document.getElementById('modest-tax'),
+            document.getElementById('comfortable-tax'),
+            document.getElementById('wealthy-tax'),
+            document.getElementById('aristocratic-tax')
+        ];
+        
+        const totalElements = [
+            document.getElementById('poor-total'),
+            document.getElementById('modest-total'),
+            document.getElementById('comfortable-total'),
+            document.getElementById('wealthy-total'),
+            document.getElementById('aristocratic-total')
+        ];
+        
+        const totalTaxPerElement = document.getElementById('total-tax-per');
+        const totalTaxElement = document.getElementById('total-tax');
+        
         // Sincronizar inputs de população
         populationInput.addEventListener('input', function() {
             populationSlider.value = this.value;
             populationValue.textContent = this.value;
             updatePopulationCounts();
+            calculateTaxes();
+            saveData();
         });
         
         populationSlider.addEventListener('input', function() {
             populationInput.value = this.value;
             populationValue.textContent = this.value;
             updatePopulationCounts();
+            calculateTaxes();
+            saveData();
         });
         
         // Atualizar sliders de prosperidade e segurança
         prosperitySlider.addEventListener('input', function() {
             prosperityValue.textContent = this.value;
+            saveData();
         });
         
         securitySlider.addEventListener('input', function() {
             securityValue.textContent = this.value;
+            saveData();
         });
         
         // Sincronizar input de ouro
         goldInput.addEventListener('input', function() {
             goldValue.textContent = this.value;
+            saveData();
+        });
+        
+        // Atualizar taxa de impostos
+        taxRateSlider.addEventListener('input', function() {
+            const taxRate = parseInt(this.value);
+            taxRateValue.textContent = `${taxRate}%`;
+            calculateTaxes();
+            saveData();
+        });
+        
+        // Coletar impostos
+        collectTaxesButton.addEventListener('click', function() {
+            const currentGold = parseInt(goldInput.value) || 0;
+            const taxRevenue = parseFloat(taxRevenueValue.textContent) || 0;
+            goldInput.value = currentGold + taxRevenue;
+            goldValue.textContent = goldInput.value;
+            
+            // Registrar no log de eventos
+            const notes = document.getElementById('notes');
+            const date = new Date().toLocaleDateString();
+            notes.value = `[${date}] Impostos coletados: ${taxRevenue.toFixed(1)} GP\n` + notes.value;
+            
+            saveData();
+        });
+        
+        // Resetar dados
+        resetButton.addEventListener('click', function() {
+            if (confirm('Tem certeza que deseja resetar todos os dados? Isso não pode ser desfeito.')) {
+                localStorage.removeItem('phandalinData');
+                
+                // Resetar valores para os padrões
+                populationInput.value = 80;
+                populationSlider.value = 80;
+                populationValue.textContent = 80;
+                
+                prosperitySlider.value = 25;
+                prosperityValue.textContent = 25;
+                
+                securitySlider.value = 30;
+                securityValue.textContent = 30;
+                
+                goldInput.value = 500;
+                goldValue.textContent = 500;
+                
+                taxRateSlider.value = 10;
+                taxRateValue.textContent = '10%';
+                
+                percentInputs[0].value = 60;
+                percentInputs[1].value = 30;
+                percentInputs[2].value = 8;
+                percentInputs[3].value = 2;
+                percentInputs[4].value = 0;
+                
+                document.getElementById('notes').value = '';
+                
+                updatePopulationCounts();
+                calculateTaxes();
+            }
         });
         
         // Atualizar contagens de população por classe
         function updatePopulationCounts() {
-            const totalPopulation = parseInt(populationInput.value);
+            const totalPopulation = parseInt(populationInput.value) || 0;
             let totalPercent = 0;
             
             // Calcular percentual total
@@ -338,7 +472,6 @@
             
             // Ajustar se total não for 100%
             if (totalPercent !== 100) {
-                // Para simplificar, não faremos ajuste automático
                 console.log("Atenção: a soma dos percentuais não é 100%");
             }
             
@@ -350,134 +483,100 @@
             }
         }
         
+        // Calcular impostos com base na taxa atual
+        function calculateTaxes() {
+            const taxRate = parseInt(taxRateSlider.value) || 10;
+            const taxMultiplier = taxRate / 10; // Base é 10%
+            
+            let totalRevenue = 0;
+            
+            for (let i = 0; i < percentInputs.length; i++) {
+                const count = parseInt(countElements[i].textContent) || 0;
+                const currentTax = baseTaxes[i] * taxMultiplier;
+                const classTotal = currentTax * count;
+                
+                taxElements[i].textContent = `${currentTax.toFixed(1)} gp`;
+                totalElements[i].textContent = `${classTotal.toFixed(1)} gp`;
+                
+                totalRevenue += classTotal;
+            }
+            
+            taxRevenueValue.textContent = totalRevenue.toFixed(1);
+            totalTaxElement.textContent = `${totalRevenue.toFixed(1)} gp`;
+            totalTaxPerElement.textContent = `(${taxRate}%)`;
+        }
+        
         // Adicionar listeners para os inputs de percentual
         for (const input of percentInputs) {
-            input.addEventListener('input', updatePopulationCounts);
+            input.addEventListener('input', function() {
+                updatePopulationCounts();
+                calculateTaxes();
+                saveData();
+            });
+        }
+        
+        // Salvar dados no localStorage
+        function saveData() {
+            const data = {
+                population: populationInput.value,
+                prosperity: prosperitySlider.value,
+                security: securitySlider.value,
+                gold: goldInput.value,
+                taxRate: taxRateSlider.value,
+                poorPercent: document.getElementById('poor-percent').value,
+                modestPercent: document.getElementById('modest-percent').value,
+                comfortablePercent: document.getElementById('comfortable-percent').value,
+                wealthyPercent: document.getElementById('wealthy-percent').value,
+                aristocraticPercent: document.getElementById('aristocratic-percent').value,
+                notes: document.getElementById('notes').value
+            };
+            localStorage.setItem('phandalinData', JSON.stringify(data));
+        }
+        
+        // Carregar dados do localStorage
+        function loadData() {
+            const savedData = localStorage.getItem('phandalinData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                
+                // Restaurar valores dos controles
+                populationInput.value = data.population;
+                populationSlider.value = data.population;
+                populationValue.textContent = data.population;
+                
+                prosperitySlider.value = data.prosperity;
+                prosperityValue.textContent = data.prosperity;
+                
+                securitySlider.value = data.security;
+                securityValue.textContent = data.security;
+                
+                goldInput.value = data.gold;
+                goldValue.textContent = data.gold;
+                
+                taxRateSlider.value = data.taxRate;
+                taxRateValue.textContent = `${data.taxRate}%`;
+                
+                document.getElementById('poor-percent').value = data.poorPercent;
+                document.getElementById('modest-percent').value = data.modestPercent;
+                document.getElementById('comfortable-percent').value = data.comfortablePercent;
+                document.getElementById('wealthy-percent').value = data.wealthyPercent;
+                document.getElementById('aristocratic-percent').value = data.aristocraticPercent;
+                
+                document.getElementById('notes').value = data.notes;
+                
+                // Atualizar displays
+                updatePopulationCounts();
+                calculateTaxes();
+            }
         }
         
         // Inicializar
+        window.addEventListener('load', function() {
+            loadData();
+        });
+        
         updatePopulationCounts();
+        calculateTaxes();
     </script>
 </body>
-    <script>
-    // ...seu código JavaScript existente...
-
-    // ==============================================
-    // FUNÇÕES DE PERSISTÊNCIA (SALVAR/CARREGAR DADOS)
-    // ==============================================
-
-    // Salvar dados no localStorage
-    function saveData() {
-      const data = {
-        population: populationInput.value,
-        prosperity: prosperitySlider.value,
-        security: securitySlider.value,
-        gold: goldInput.value,
-        taxRate: taxRateSlider.value,
-        poorPercent: document.getElementById('poor-percent').value,
-        modestPercent: document.getElementById('modest-percent').value,
-        comfortablePercent: document.getElementById('comfortable-percent').value,
-        wealthyPercent: document.getElementById('wealthy-percent').value,
-        aristocraticPercent: document.getElementById('aristocratic-percent').value,
-        notes: document.getElementById('notes').value
-      };
-      localStorage.setItem('phandalinData', JSON.stringify(data));
-      console.log("Dados salvos com sucesso!");
-    }
-
-    // Carregar dados do localStorage
-    function loadData() {
-      const savedData = localStorage.getItem('phandalinData');
-      if (savedData) {
-        const data = JSON.parse(savedData);
-        
-        // Restaurar valores dos controles
-        populationInput.value = data.population;
-        populationSlider.value = data.population;
-        prosperitySlider.value = data.prosperity;
-        securitySlider.value = data.security;
-        goldInput.value = data.gold;
-        taxRateSlider.value = data.taxRate;
-        document.getElementById('poor-percent').value = data.poorPercent;
-        document.getElementById('modest-percent').value = data.modestPercent;
-        document.getElementById('comfortable-percent').value = data.comfortablePercent;
-        document.getElementById('wealthy-percent').value = data.wealthyPercent;
-        document.getElementById('aristocratic-percent').value = data.aristocraticPercent;
-        document.getElementById('notes').value = data.notes;
-        
-        // Atualizar displays
-        updateAllValues();
-        console.log("Dados carregados com sucesso!");
-      }
-    }
-
-    // Atualizar todos os valores exibidos
-    function updateAllValues() {
-      populationValue.textContent = populationInput.value;
-      prosperityValue.textContent = prosperitySlider.value;
-      securityValue.textContent = securitySlider.value;
-      goldValue.textContent = goldInput.value;
-      taxRateValue.textContent = `${taxRateSlider.value}%`;
-      
-      updatePopulationCounts();
-      calculateTaxes();
-    }
-
-    // Adicionar event listeners para salvar quando valores mudarem
-    function setupAutoSave() {
-      // Todos os inputs e sliders
-      const allInputs = document.querySelectorAll('input, textarea');
-      allInputs.forEach(input => {
-        input.addEventListener('change', saveData);
-        input.addEventListener('input', function() {
-          // Para sliders, salvamos apenas quando parar de mover
-          if (this.type !== 'range') {
-            saveData();
-          }
-        });
-      });
-      
-      // Para sliders, salvar quando parar de interagir
-      document.querySelectorAll('input[type="range"]').forEach(slider => {
-        slider.addEventListener('change', saveData);
-      });
-      
-      // Botão de coletar impostos também deve salvar
-      collectTaxesButton.addEventListener('click', saveData);
-    }
-
-    // Adicionar botão de reset
-    function addResetButton() {
-      const resetButton = document.createElement('button');
-      resetButton.textContent = 'Resetar Dados';
-      resetButton.className = 'button';
-      resetButton.style.marginTop = '10px';
-      resetButton.style.backgroundColor = '#f44336';
-      
-      resetButton.addEventListener('click', function() {
-        if (confirm('Tem certeza que deseja resetar todos os dados? Isso não pode ser desfeito.')) {
-          localStorage.removeItem('phandalinData');
-          location.reload();
-        }
-      });
-      
-      document.querySelector('.tax-info').appendChild(resetButton);
-    }
-
-    // ==============================================
-    // INICIALIZAÇÃO
-    // ==============================================
-
-    // Inicializar
-    updatePopulationCounts();
-    calculateTaxes();
-    setupAutoSave();
-    addResetButton();
-
-    // Carregar dados salvos quando a página carregar
-    window.addEventListener('load', function() {
-      // Pequeno delay para garantir que tudo está carregado
-      setTimeout(loadData, 100);
-    });
-</script>
-
+</html>
