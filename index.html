@@ -358,43 +358,124 @@
         // Inicializar
         updatePopulationCounts();
     </script>
-</body>
+    <script>
+    // ==============================================
+    // FUNÇÕES DE PERSISTÊNCIA (SALVAR/CARREGAR DADOS)
+    // ==============================================
+
     // Salvar dados no localStorage
-function saveData() {
-  const data = {
-    population: populationInput.value,
-    prosperity: prosperitySlider.value,
-    security: securitySlider.value,
-    gold: goldInput.value,
-    taxRate: taxRateSlider.value,
-    notes: document.getElementById('notes').value
-  };
-  localStorage.setItem('phandalinData', JSON.stringify(data));
-}
+    function saveData() {
+      const data = {
+        population: populationInput.value,
+        prosperity: prosperitySlider.value,
+        security: securitySlider.value,
+        gold: goldInput.value,
+        taxRate: taxRateSlider.value,
+        poorPercent: document.getElementById('poor-percent').value,
+        modestPercent: document.getElementById('modest-percent').value,
+        comfortablePercent: document.getElementById('comfortable-percent').value,
+        wealthyPercent: document.getElementById('wealthy-percent').value,
+        aristocraticPercent: document.getElementById('aristocratic-percent').value,
+        notes: document.getElementById('notes').value
+      };
+      localStorage.setItem('phandalinData', JSON.stringify(data));
+      console.log("Dados salvos com sucesso!");
+    }
 
-// Carregar dados do localStorage
-function loadData() {
-  const savedData = localStorage.getItem('phandalinData');
-  if (savedData) {
-    const data = JSON.parse(savedData);
-    populationInput.value = data.population;
-    populationSlider.value = data.population;
-    prosperitySlider.value = data.prosperity;
-    securitySlider.value = data.security;
-    goldInput.value = data.gold;
-    taxRateSlider.value = data.taxRate;
-    document.getElementById('notes').value = data.notes;
-    
-    // Atualizar displays
-    updateAllValues();
-  }
-}
+    // Carregar dados do localStorage
+    function loadData() {
+      const savedData = localStorage.getItem('phandalinData');
+      if (savedData) {
+        const data = JSON.parse(savedData);
+        
+        // Restaurar valores dos controles
+        populationInput.value = data.population;
+        populationSlider.value = data.population;
+        prosperitySlider.value = data.prosperity;
+        securitySlider.value = data.security;
+        goldInput.value = data.gold;
+        taxRateSlider.value = data.taxRate;
+        document.getElementById('poor-percent').value = data.poorPercent;
+        document.getElementById('modest-percent').value = data.modestPercent;
+        document.getElementById('comfortable-percent').value = data.comfortablePercent;
+        document.getElementById('wealthy-percent').value = data.wealthyPercent;
+        document.getElementById('aristocratic-percent').value = data.aristocraticPercent;
+        document.getElementById('notes').value = data.notes;
+        
+        // Atualizar displays
+        updateAllValues();
+        console.log("Dados carregados com sucesso!");
+      }
+    }
 
-// Adicionar event listeners para salvar quando valores mudarem
-document.querySelectorAll('input, textarea').forEach(input => {
-  input.addEventListener('change', saveData);
-});
+    // Atualizar todos os valores exibidos
+    function updateAllValues() {
+      populationValue.textContent = populationInput.value;
+      prosperityValue.textContent = prosperitySlider.value;
+      securityValue.textContent = securitySlider.value;
+      goldValue.textContent = goldInput.value;
+      taxRateValue.textContent = `${taxRateSlider.value}%`;
+      
+      updatePopulationCounts();
+      calculateTaxes();
+    }
 
-// Carregar dados quando a página carregar
-window.addEventListener('load', loadData);
-</html>
+    // Adicionar event listeners para salvar quando valores mudarem
+    function setupAutoSave() {
+      // Todos os inputs e sliders
+      const allInputs = document.querySelectorAll('input, textarea');
+      allInputs.forEach(input => {
+        input.addEventListener('change', saveData);
+        input.addEventListener('input', function() {
+          // Para sliders, salvamos apenas quando parar de mover
+          if (this.type !== 'range') {
+            saveData();
+          }
+        });
+      });
+      
+      // Para sliders, salvar quando parar de interagir
+      document.querySelectorAll('input[type="range"]').forEach(slider => {
+        slider.addEventListener('change', saveData);
+      });
+      
+      // Botão de coletar impostos também deve salvar
+      collectTaxesButton.addEventListener('click', saveData);
+    }
+
+    // Adicionar botão de reset
+    function addResetButton() {
+      const resetButton = document.createElement('button');
+      resetButton.textContent = 'Resetar Dados';
+      resetButton.className = 'button';
+      resetButton.style.marginTop = '10px';
+      resetButton.style.backgroundColor = '#f44336';
+      
+      resetButton.addEventListener('click', function() {
+        if (confirm('Tem certeza que deseja resetar todos os dados? Isso não pode ser desfeito.')) {
+          localStorage.removeItem('phandalinData');
+          location.reload();
+        }
+      });
+      
+      document.querySelector('.tax-info').appendChild(resetButton);
+    }
+
+    // ==============================================
+    // INICIALIZAÇÃO
+    // ==============================================
+
+    // Inicializar
+    updatePopulationCounts();
+    calculateTaxes();
+    setupAutoSave();
+    addResetButton();
+
+    // Carregar dados salvos quando a página carregar
+    window.addEventListener('load', function() {
+      // Pequeno delay para garantir que tudo está carregado
+      setTimeout(loadData, 100);
+    });
+</script>
+</body>
+
