@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tracker de Recursos - Phandalin</title>
+    <title>Gerenciamento de Phandalin</title>
     <style>
         :root {
             --color-dark: #3c2c23;
@@ -256,8 +256,8 @@
             <h2>Sistema de Impostos</h2>
             <div class="stat-title">Taxa de Impostos</div>
             <div class="stat-value taxes" id="tax-rate-value">10%</div>
-            <input type="range" class="stat-slider" id="tax-rate-slider" min="5" max="30" value="10">
-            <div>5% (Baixo) — 30% (Alto)</div>
+            <input type="range" class="stat-slider" id="tax-rate-slider" min="0" max="40" value="10">
+            <div>0% (Baixo) — 40% (Alto)</div>
             
             <div class="stat-title">Arrecadação Mensal de Impostos</div>
             <div class="stat-value taxes" id="tax-revenue-value">15.6 GP</div>
@@ -274,10 +274,10 @@
                         <th>% da População</th>
                         <th>Quantidade</th>
                         <th>Renda Mínima/Mês</th>
-                        <th>Lifestyle/Mês</th>
+                        <th>Estilo de Vida/Mês</th>
                         <th>Upkeep/Mês</th>
-                        <th>Taxes/Mês</th>
-                        <th>Profit/Mês</th>
+                        <th>Imposto/Mês</th>
+                        <th>Lucro/Mês</th>
                     </tr>
                 </thead>
                 <tbody>
