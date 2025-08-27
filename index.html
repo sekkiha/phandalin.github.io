@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tracker de Recursos - Phandalin</title>
+    <title>Gerenciamento de Phandalin</title>
     <style>
         :root {
             --color-dark: #3c2c23;
@@ -191,7 +191,7 @@
         
         .construction-image {
             width: 100%;
-            height: 150px;
+            height: 350px;
             object-fit: cover;
             border-radius: 4px;
             margin-bottom: 10px;
@@ -299,8 +299,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>Tracker de Recursos - Phandalin</h1>
-            <p class="subtitle">Módulo: Phandalin and Below</p>
+            <h1>Prefeitura de Phandalin</h1>
+            <p class="subtitle">Módulo: Phandalin and Below por "Kung Fu"</p>
         </header>
         
         <div class="stats-grid">
@@ -338,11 +338,12 @@
             <h2>Sistema de Impostos</h2>
             <div class="stat-title">Taxa de Impostos</div>
             <div class="stat-value taxes" id="tax-rate-value">10%</div>
-            <input type="range" class="stat-slider" id="tax-rate-slider" min="5" max="30" value="10">
-            <div>5% (Baixo) — 30% (Alto)</div>
+            <input type="range" class="stat-slider" id="tax-rate-slider" min="0" max="40" value="10">
+            <div>0% (Baixo) — 40% (Alto)</div>
             
             <div class="stat-title">Arrecadação Mensal de Impostos</div>
             <div class="stat-value taxes" id="tax-revenue-value">15.6 GP</div>
+            <div class="info-text" id="construction-upkeep-info">Manutenção de construções: 0 GP</div>
             <button class="button" id="collect-taxes">Coletar Impostos</button>
             <button class="button reset-button" id="reset-data">Resetar Dados</button>
         </div>
@@ -386,10 +387,10 @@
                         <th>% da População</th>
                         <th>Quantidade</th>
                         <th>Renda Mínima/Mês</th>
-                        <th>Lifestyle/Mês</th>
-                        <th>Upkeep/Mês</th>
-                        <th>Taxes/Mês</th>
-                        <th>Profit/Mês</th>
+                        <th>Estilo de Vida/Mês</th>
+                        <th>Manutenção/Mês</th>
+                        <th>Impostos/Mês</th>
+                        <th>Lucro/Mês</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -457,7 +458,7 @@
         
         <div class="comparison">
             <div>Phandalin Atual: 80 habitantes</div>
-            <div>Cidade Próspera: 125.000 habitantes</div>
+            <div>Baldur's Gate: 125.000 habitantes</div>
         </div>
         
         <div class="notes-section">
@@ -481,6 +482,7 @@
         const taxRateSlider = document.getElementById('tax-rate-slider');
         const taxRateValue = document.getElementById('tax-rate-value');
         const taxRevenueValue = document.getElementById('tax-revenue-value');
+        const constructionUpkeepInfo = document.getElementById('construction-upkeep-info');
         const collectTaxesButton = document.getElementById('collect-taxes');
         const resetButton = document.getElementById('reset-data');
         const addConstructionButton = document.getElementById('add-construction');
@@ -613,13 +615,22 @@
         collectTaxesButton.addEventListener('click', function() {
             const currentGold = parseInt(goldInput.value) || 0;
             const taxRevenue = parseFloat(taxRevenueValue.textContent) || 0;
+            
+            // Verificar se há receita suficiente para cobrir a manutenção
+            if (taxRevenue < 0) {
+                if (!confirm(`Atenção! A manutenção das construções excede a arrecadação em ${Math.abs(taxRevenue)} GP. Continuar irá reduzir seu tesouro.`)) {
+                    return;
+                }
+            }
+            
             goldInput.value = currentGold + taxRevenue;
             goldValue.textContent = goldInput.value;
             
             // Registrar no log de eventos
             const notes = document.getElementById('notes');
             const date = new Date().toLocaleDateString();
-            notes.value = `[${date}] Impostos coletados: ${taxRevenue.toFixed(1)} GP\n` + notes.value;
+            const maintenance = calculateTotalConstructionUpkeep();
+            notes.value = `[${date}] Impostos coletados: ${taxRevenue.toFixed(1)} GP (Manutenção: ${maintenance.toFixed(1)} GP)\n` + notes.value;
             
             saveData();
         });
@@ -725,6 +736,15 @@
             }
         });
         
+        // Calcular manutenção total das construções
+        function calculateTotalConstructionUpkeep() {
+            let total = 0;
+            constructions.forEach(construction => {
+                total += construction.upkeep * construction.level;
+            });
+            return total;
+        }
+        
         // Atualizar contagens de população por classe
         function updatePopulationCounts() {
             const totalPopulation = parseInt(populationInput.value) || 0;
@@ -804,7 +824,7 @@
                         effectDescription = `+${construction.effectValue * construction.level} População`;
                         break;
                     case 'tax':
-                        effectDescription = `+${construction.effectValue * construction.level} GP em Impostos`;
+                        effectDescription = `${construction.effectValue * construction.level} GP em Impostos`;
                         break;
                 }
                 
@@ -848,11 +868,6 @@
             const currentGold = parseInt(goldInput.value) || 0;
             const upkeepIncrease = construction.upkeep; // Aumento da manutenção por nível
             
-            if (currentGold < upkeepIncrease) {
-                alert('Ouro insuficiente para pagar a manutenção adicional!');
-                return;
-            }
-            
             construction.level++;
             updateConstructionEffects();
             updateConstructionsDisplay();
@@ -894,9 +909,9 @@
             const basePopulation = parseInt(populationInput.value);
             
             // Aplicar efeitos das construções
-            const effectiveProsperity = baseProsperity + constructionEffects.prosperity;
-            const effectiveSecurity = baseSecurity + constructionEffects.security;
-            const effectivePopulation = basePopulation + constructionEffects.population;
+            const effectiveProsperity = Math.max(0, Math.min(100, baseProsperity + constructionEffects.prosperity));
+            const effectiveSecurity = Math.max(0, Math.min(100, baseSecurity + constructionEffects.security));
+            const effectivePopulation = Math.max(0, basePopulation + constructionEffects.population);
             
             // Atualizar displays com valores efetivos
             prosperityValue.textContent = effectiveProsperity;
@@ -915,10 +930,7 @@
             let totalProfit = 0;
             
             // Calcular manutenção total das construções
-            let totalConstructionUpkeep = 0;
-            constructions.forEach(construction => {
-                totalConstructionUpkeep += construction.upkeep * construction.level;
-            });
+            const totalConstructionUpkeep = calculateTotalConstructionUpkeep();
             
             for (let i = 0; i < percentInputs.length; i++) {
                 const count = parseInt(countElements[i].textContent) || 0;
@@ -927,7 +939,6 @@
                 const income = baseIncomes[i] * prosperityMultiplier;
                 const lifestyle = baseLifestyles[i] * prosperityMultiplier;
                 const upkeep = baseUpkeeps[i] * prosperityMultiplier;
-                const baseProfit = baseProfits[i] * prosperityMultiplier;
                 
                 // Calcular impostos (10% da renda é a base, ajustado pela taxa atual)
                 const tax = income * (taxRate / 100);
@@ -951,8 +962,8 @@
             // Aplicar modificador de impostos das construções
             totalTaxRevenue += constructionEffects.taxModifier;
             
-            // Subtrair a manutenção das construções do lucro total
-            totalProfit -= totalConstructionUpkeep;
+            // Subtrair a manutenção das construções da arrecadação de impostos
+            totalTaxRevenue -= totalConstructionUpkeep;
             
             // Atualizar totais
             totalIncomeElement.textContent = `${totalIncome.toFixed(1)} gp`;
@@ -961,8 +972,19 @@
             totalTaxElement.textContent = `${totalTaxRevenue.toFixed(1)} gp`;
             totalProfitElement.textContent = `${totalProfit.toFixed(1)} gp`;
             
-            // Atualizar arrecadação de impostos
+            // Atualizar arrecadação de impostos e informação de manutenção
             taxRevenueValue.textContent = totalTaxRevenue.toFixed(1);
+            constructionUpkeepInfo.textContent = `Manutenção de construções: ${totalConstructionUpkeep.toFixed(1)} GP`;
+            
+            // Destacar se a manutenção está causando deficit
+            if (totalConstructionUpkeep > 0) {
+                if (totalTaxRevenue < 0) {
+                    constructionUpkeepInfo.style.color = '#f44336';
+                    constructionUpkeepInfo.innerHTML += ` <span style="color:#f44336">(Déficit: ${Math.abs(totalTaxRevenue).toFixed(1)} GP)</span>`;
+                } else {
+                    constructionUpkeepInfo.style.color = '';
+                }
+            }
         }
         
         // Adicionar listeners para os inputs de percentual
