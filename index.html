@@ -300,6 +300,14 @@
             border-radius: 3px;
         }
         
+        .editable-tax {
+            width: 50px;
+            text-align: center;
+            padding: 3px;
+            border: 1px solid var(--color-medium);
+            border-radius: 3px;
+        }
+        
         @media (max-width: 768px) {
             .stats-grid {
                 grid-template-columns: 1fr;
@@ -321,8 +329,8 @@
                 grid-template-columns: 1fr;
             }
             
-            .editable-income, .editable-count {
-                width: 50px;
+            .editable-income, .editable-count, .editable-tax {
+                width: 40px;
             }
         }
     </style>
@@ -359,10 +367,6 @@
         
         <div class="tax-info">
             <h2>Sistema de Impostos</h2>
-            <div class="stat-title">Taxa de Impostos</div>
-            <div class="stat-value taxes" id="tax-rate-value">10%</div>
-            <input type="range" class="stat-slider" id="tax-rate-slider" min="0" max="40" value="10">
-            <div>0% (Baixo) — 40% (Alto)</div>
             
             <div class="stat-title">Arrecadação Mensal de Impostos</div>
             <div class="stat-value taxes" id="tax-revenue-value">15.6 GP</div>
@@ -384,6 +388,8 @@
                         <option value="prosperity">Prosperidade</option>
                         <option value="population">População</option>
                         <option value="tax">Impostos</option>
+                        <option value="lifestyle">Estilo de Vida</option>
+                        <option value="upkeep">Manutenção</option>
                         <option value="other">Outro</option>
                     </select>
                 </div>
@@ -416,6 +422,7 @@
                         <th>Renda Mínima/Mês</th>
                         <th>Estilo de Vida/Mês</th>
                         <th>Manutenção/Mês</th>
+                        <th>Taxa de Imposto</th>
                         <th>Impostos/Mês</th>
                         <th>Lucro/Mês</th>
                     </tr>
@@ -428,6 +435,7 @@
                         <td><input type="number" class="editable-income" id="poor-income" min="0" value="6"> gp</td>
                         <td id="poor-lifestyle">3 gp</td>
                         <td id="poor-upkeep">2 gp</td>
+                        <td><input type="number" class="editable-tax" id="poor-tax-rate" min="0" max="100" value="10">%</td>
                         <td id="poor-tax">0.6 gp</td>
                         <td id="poor-profit">0.4 gp</td>
                     </tr>
@@ -438,6 +446,7 @@
                         <td><input type="number" class="editable-income" id="modest-income" min="0" value="30"> gp</td>
                         <td id="modest-lifestyle">15 gp</td>
                         <td id="modest-upkeep">10 gp</td>
+                        <td><input type="number" class="editable-tax" id="modest-tax-rate" min="0" max="100" value="10">%</td>
                         <td id="modest-tax">3 gp</td>
                         <td id="modest-profit">2 gp</td>
                     </tr>
@@ -448,6 +457,7 @@
                         <td><input type="number" class="editable-income" id="comfortable-income" min="0" value="60"> gp</td>
                         <td id="comfortable-lifestyle">30 gp</td>
                         <td id="comfortable-upkeep">20 gp</td>
+                        <td><input type="number" class="editable-tax" id="comfortable-tax-rate" min="0" max="100" value="10">%</td>
                         <td id="comfortable-tax">6 gp</td>
                         <td id="comfortable-profit">4 gp</td>
                     </tr>
@@ -458,6 +468,7 @@
                         <td><input type="number" class="editable-income" id="wealthy-income" min="0" value="120"> gp</td>
                         <td id="wealthy-lifestyle">60 gp</td>
                         <td id="wealthy-upkeep">40 gp</td>
+                        <td><input type="number" class="editable-tax" id="wealthy-tax-rate" min="0" max="100" value="10">%</td>
                         <td id="wealthy-tax">12 gp</td>
                         <td id="wealthy-profit">8 gp</td>
                     </tr>
@@ -468,6 +479,7 @@
                         <td><input type="number" class="editable-income" id="aristocratic-income" min="0" value="300"> gp</td>
                         <td id="aristocratic-lifestyle">150 gp</td>
                         <td id="aristocratic-upkeep">100 gp</td>
+                        <td><input type="number" class="editable-tax" id="aristocratic-tax-rate" min="0" max="100" value="10">%</td>
                         <td id="aristocratic-tax">30 gp</td>
                         <td id="aristocratic-profit">20 gp</td>
                     </tr>
@@ -477,6 +489,7 @@
                         <td id="total-income">-</td>
                         <td id="total-lifestyle">-</td>
                         <td id="total-upkeep">-</td>
+                        <td id="total-tax-rate">-</td>
                         <td id="total-tax">15.6 gp</td>
                         <td id="total-profit">-</td>
                     </tr>
@@ -504,8 +517,6 @@
         const securityValue = document.getElementById('security-value');
         const goldInput = document.getElementById('gold-input');
         const goldValue = document.getElementById('gold-value');
-        const taxRateSlider = document.getElementById('tax-rate-slider');
-        const taxRateValue = document.getElementById('tax-rate-value');
         const taxRevenueValue = document.getElementById('tax-revenue-value');
         const constructionUpkeepInfo = document.getElementById('construction-upkeep-info');
         const collectTaxesButton = document.getElementById('collect-taxes');
@@ -531,6 +542,15 @@
             document.getElementById('comfortable-income'),
             document.getElementById('wealthy-income'),
             document.getElementById('aristocratic-income')
+        ];
+        
+        // Elementos de taxa de imposto por classe
+        const taxRateInputs = [
+            document.getElementById('poor-tax-rate'),
+            document.getElementById('modest-tax-rate'),
+            document.getElementById('comfortable-tax-rate'),
+            document.getElementById('wealthy-tax-rate'),
+            document.getElementById('aristocratic-tax-rate')
         ];
         
         // Elementos de percentual (apenas para exibição)
@@ -594,6 +614,7 @@
         const totalIncomeElement = document.getElementById('total-income');
         const totalLifestyleElement = document.getElementById('total-lifestyle');
         const totalUpkeepElement = document.getElementById('total-upkeep');
+        const totalTaxRateElement = document.getElementById('total-tax-rate');
         const totalTaxElement = document.getElementById('total-tax');
         const totalProfitElement = document.getElementById('total-profit');
         
@@ -603,7 +624,9 @@
             security: 0,
             prosperity: 0,
             population: 0,
-            taxModifier: 0
+            taxModifier: 0,
+            lifestyle: 0, // Novo efeito para estilo de vida
+            upkeep: 0     // Novo efeito para manutenção
         };
         
         // Atualizar sliders de prosperidade e segurança
@@ -622,14 +645,6 @@
         // Sincronizar input de ouro
         goldInput.addEventListener('input', function() {
             goldValue.textContent = this.value;
-            saveData();
-        });
-        
-        // Atualizar taxa de impostos
-        taxRateSlider.addEventListener('input', function() {
-            const taxRate = parseInt(this.value);
-            taxRateValue.textContent = `${taxRate}%`;
-            calculateEconomy();
             saveData();
         });
         
@@ -728,9 +743,6 @@
                 goldInput.value = 500;
                 goldValue.textContent = 500;
                 
-                taxRateSlider.value = 10;
-                taxRateValue.textContent = '10%';
-                
                 // Resetar contagens de população
                 countInputs[0].value = 48;
                 countInputs[1].value = 24;
@@ -745,6 +757,13 @@
                 incomeInputs[3].value = 120;
                 incomeInputs[4].value = 300;
                 
+                // Resetar taxas de imposto
+                taxRateInputs[0].value = 10;
+                taxRateInputs[1].value = 10;
+                taxRateInputs[2].value = 10;
+                taxRateInputs[3].value = 10;
+                taxRateInputs[4].value = 10;
+                
                 document.getElementById('notes').value = '';
                 
                 constructions = [];
@@ -752,7 +771,9 @@
                     security: 0,
                     prosperity: 0,
                     population: 0,
-                    taxModifier: 0
+                    taxModifier: 0,
+                    lifestyle: 0,
+                    upkeep: 0
                 };
                 
                 updatePopulationCounts();
@@ -807,7 +828,9 @@
                 security: 0,
                 prosperity: 0,
                 population: 0,
-                taxModifier: 0
+                taxModifier: 0,
+                lifestyle: 0,
+                upkeep: 0
             };
             
             // Calcular efeitos totais
@@ -824,6 +847,12 @@
                         break;
                     case 'tax':
                         constructionEffects.taxModifier += construction.effectValue * construction.level;
+                        break;
+                    case 'lifestyle':
+                        constructionEffects.lifestyle += construction.effectValue * construction.level;
+                        break;
+                    case 'upkeep':
+                        constructionEffects.upkeep += construction.effectValue * construction.level;
                         break;
                 }
             });
@@ -850,6 +879,12 @@
                         break;
                     case 'tax':
                         effectDescription = `${construction.effectValue * construction.level} GP em Impostos`;
+                        break;
+                    case 'lifestyle':
+                        effectDescription = `+${construction.effectValue * construction.level} Estilo de Vida`;
+                        break;
+                    case 'upkeep':
+                        effectDescription = `+${construction.effectValue * construction.level} Manutenção`;
                         break;
                 }
                 
@@ -926,9 +961,8 @@
             saveData();
         }
         
-        // Calcular economia com base na prosperidade e taxa de impostos
+        // Calcular economia com base na prosperidade e taxas de impostos individuais
         function calculateEconomy() {
-            const taxRate = parseInt(taxRateSlider.value) || 10;
             const baseProsperity = parseInt(prosperitySlider.value);
             const baseSecurity = parseInt(securitySlider.value);
             
@@ -948,6 +982,8 @@
             let totalUpkeep = 0;
             let totalTaxRevenue = 0;
             let totalProfit = 0;
+            let totalTaxRate = 0;
+            let classCount = 0;
             
             // Calcular manutenção total das construções
             const totalConstructionUpkeep = calculateTotalConstructionUpkeep();
@@ -955,13 +991,19 @@
             for (let i = 0; i < countInputs.length; i++) {
                 const count = parseInt(countInputs[i].value || 0);
                 const baseIncome = parseFloat(incomeInputs[i].value || 0);
+                const taxRate = parseFloat(taxRateInputs[i].value || 0);
                 
                 // Calcular valores ajustados pela prosperidade
                 const income = baseIncome * prosperityMultiplier;
-                const lifestyle = income * lifestyleMultipliers[i];
-                const upkeep = income * upkeepMultipliers[i];
                 
-                // Calcular impostos (taxRate % da renda)
+                // Aplicar efeitos das construções no estilo de vida e manutenção
+                const lifestyleMultiplier = Math.max(0, lifestyleMultipliers[i] + constructionEffects.lifestyle / 100);
+                const upkeepMultiplier = Math.max(0, upkeepMultipliers[i] + constructionEffects.upkeep / 100);
+                
+                const lifestyle = income * lifestyleMultiplier;
+                const upkeep = income * upkeepMultiplier;
+                
+                // Calcular impostos com taxa individual
                 const tax = income * (taxRate / 100);
                 const profit = income - lifestyle - upkeep - tax;
                 
@@ -977,6 +1019,12 @@
                 totalUpkeep += upkeep * count;
                 totalTaxRevenue += tax * count;
                 totalProfit += profit * count;
+                
+                // Calcular média da taxa de imposto (apenas para classes com população)
+                if (count > 0) {
+                    totalTaxRate += taxRate;
+                    classCount++;
+                }
             }
             
             // Aplicar modificador de impostos das construções
@@ -985,10 +1033,14 @@
             // Subtrair a manutenção das construções da arrecadação de impostos
             totalTaxRevenue -= totalConstructionUpkeep;
             
+            // Calcular taxa média de imposto
+            const averageTaxRate = classCount > 0 ? (totalTaxRate / classCount) : 0;
+            
             // Atualizar totais
             totalIncomeElement.textContent = `${totalIncome.toFixed(1)} gp`;
             totalLifestyleElement.textContent = `${totalLifestyle.toFixed(1)} gp`;
             totalUpkeepElement.textContent = `${totalUpkeep.toFixed(1)} gp`;
+            totalTaxRateElement.textContent = `${averageTaxRate.toFixed(1)}%`;
             totalTaxElement.textContent = `${totalTaxRevenue.toFixed(1)} gp`;
             totalProfitElement.textContent = `${totalProfit.toFixed(1)} gp`;
             
@@ -1007,7 +1059,7 @@
             }
         }
         
-        // Adicionar listeners para os inputs de contagem e renda
+        // Adicionar listeners para os inputs de contagem, renda e taxa de imposto
         for (const input of countInputs) {
             input.addEventListener('input', function() {
                 updatePopulationCounts();
@@ -1023,13 +1075,19 @@
             });
         }
         
+        for (const input of taxRateInputs) {
+            input.addEventListener('input', function() {
+                calculateEconomy();
+                saveData();
+            });
+        }
+        
         // Salvar dados no localStorage
         function saveData() {
             const data = {
                 prosperity: prosperitySlider.value,
                 security: securitySlider.value,
                 gold: goldInput.value,
-                taxRate: taxRateSlider.value,
                 poorCount: countInputs[0].value,
                 modestCount: countInputs[1].value,
                 comfortableCount: countInputs[2].value,
@@ -1040,6 +1098,11 @@
                 comfortableIncome: incomeInputs[2].value,
                 wealthyIncome: incomeInputs[3].value,
                 aristocraticIncome: incomeInputs[4].value,
+                poorTaxRate: taxRateInputs[0].value,
+                modestTaxRate: taxRateInputs[1].value,
+                comfortableTaxRate: taxRateInputs[2].value,
+                wealthyTaxRate: taxRateInputs[3].value,
+                aristocraticTaxRate: taxRateInputs[4].value,
                 notes: document.getElementById('notes').value,
                 constructions: constructions
             };
@@ -1062,9 +1125,6 @@
                 goldInput.value = data.gold;
                 goldValue.textContent = data.gold;
                 
-                taxRateSlider.value = data.taxRate;
-                taxRateValue.textContent = `${data.taxRate}%`;
-                
                 // Restaurar contagens de população
                 countInputs[0].value = data.poorCount || 48;
                 countInputs[1].value = data.modestCount || 24;
@@ -1078,6 +1138,13 @@
                 incomeInputs[2].value = data.comfortableIncome || 60;
                 incomeInputs[3].value = data.wealthyIncome || 120;
                 incomeInputs[4].value = data.aristocraticIncome || 300;
+                
+                // Restaurar taxas de imposto
+                taxRateInputs[0].value = data.poorTaxRate || 10;
+                taxRateInputs[1].value = data.modestTaxRate || 10;
+                taxRateInputs[2].value = data.comfortableTaxRate || 10;
+                taxRateInputs[3].value = data.wealthyTaxRate || 10;
+                taxRateInputs[4].value = data.aristocraticTaxRate || 10;
                 
                 document.getElementById('notes').value = data.notes;
                 
