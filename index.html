@@ -276,6 +276,30 @@
             font-size: 0.9em;
         }
         
+        .population-total {
+            font-size: 1.5em;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            color: var(--color-population);
+        }
+        
+        .editable-income {
+            width: 60px;
+            text-align: center;
+            padding: 3px;
+            border: 1px solid var(--color-medium);
+            border-radius: 3px;
+        }
+        
+        .editable-count {
+            width: 60px;
+            text-align: center;
+            padding: 3px;
+            border: 1px solid var(--color-medium);
+            border-radius: 3px;
+        }
+        
         @media (max-width: 768px) {
             .stats-grid {
                 grid-template-columns: 1fr;
@@ -296,6 +320,10 @@
             .construction-list {
                 grid-template-columns: 1fr;
             }
+            
+            .editable-income, .editable-count {
+                width: 50px;
+            }
         }
     </style>
 </head>
@@ -307,14 +335,6 @@
         </header>
         
         <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-title">População</div>
-                <div class="stat-value population" id="population-value">80</div>
-                <input type="number" class="stat-input" id="population-input" min="0" max="125000" value="80">
-                <input type="range" class="stat-slider" id="population-slider" min="0" max="125000" value="80" step="10">
-                <div>0 (Vila Arruinada) — 125.000 (Cidade Próspera)</div>
-            </div>
-            
             <div class="stat-card">
                 <div class="stat-title">Prosperidade</div>
                 <div class="stat-value prosperity" id="prosperity-value">25</div>
@@ -381,6 +401,10 @@
             </div>
         </div>
         
+        <div class="population-total">
+            População Total: <span id="total-population-value">80</span> habitantes
+        </div>
+        
         <h2>Distribuição de Classes Sociais</h2>
         <div class="table-container">
             <table class="classes-table">
@@ -399,9 +423,9 @@
                 <tbody>
                     <tr>
                         <td>Pobre</td>
-                        <td><input type="number" class="percent-input" id="poor-percent" min="0" max="100" value="60">%</td>
-                        <td id="poor-count">48</td>
-                        <td id="poor-income">6 gp</td>
+                        <td id="poor-percent">60%</td>
+                        <td><input type="number" class="editable-count" id="poor-count" min="0" value="48"></td>
+                        <td><input type="number" class="editable-income" id="poor-income" min="0" value="6"> gp</td>
                         <td id="poor-lifestyle">3 gp</td>
                         <td id="poor-upkeep">2 gp</td>
                         <td id="poor-tax">0.6 gp</td>
@@ -409,9 +433,9 @@
                     </tr>
                     <tr>
                         <td>Modesta</td>
-                        <td><input type="number" class="percent-input" id="modest-percent" min="0" max="100" value="30">%</td>
-                        <td id="modest-count">24</td>
-                        <td id="modest-income">30 gp</td>
+                        <td id="modest-percent">30%</td>
+                        <td><input type="number" class="editable-count" id="modest-count" min="0" value="24"></td>
+                        <td><input type="number" class="editable-income" id="modest-income" min="0" value="30"> gp</td>
                         <td id="modest-lifestyle">15 gp</td>
                         <td id="modest-upkeep">10 gp</td>
                         <td id="modest-tax">3 gp</td>
@@ -419,9 +443,9 @@
                     </tr>
                     <tr>
                         <td>Confortável</td>
-                        <td><input type="number" class="percent-input" id="comfortable-percent" min="0" max="100" value="8">%</td>
-                        <td id="comfortable-count">6</td>
-                        <td id="comfortable-income">60 gp</td>
+                        <td id="comfortable-percent">8%</td>
+                        <td><input type="number" class="editable-count" id="comfortable-count" min="0" value="6"></td>
+                        <td><input type="number" class="editable-income" id="comfortable-income" min="0" value="60"> gp</td>
                         <td id="comfortable-lifestyle">30 gp</td>
                         <td id="comfortable-upkeep">20 gp</td>
                         <td id="comfortable-tax">6 gp</td>
@@ -429,9 +453,9 @@
                     </tr>
                     <tr>
                         <td>Rica</td>
-                        <td><input type="number" class="percent-input" id="wealthy-percent" min="0" max="100" value="2">%</td>
-                        <td id="wealthy-count">2</td>
-                        <td id="wealthy-income">120 gp</td>
+                        <td id="wealthy-percent">2%</td>
+                        <td><input type="number" class="editable-count" id="wealthy-count" min="0" value="2"></td>
+                        <td><input type="number" class="editable-income" id="wealthy-income" min="0" value="120"> gp</td>
                         <td id="wealthy-lifestyle">60 gp</td>
                         <td id="wealthy-upkeep">40 gp</td>
                         <td id="wealthy-tax">12 gp</td>
@@ -439,16 +463,17 @@
                     </tr>
                     <tr>
                         <td>Aristocrática</td>
-                        <td><input type="number" class="percent-input" id="aristocratic-percent" min="0" max="100" value="0">%</td>
-                        <td id="aristocratic-count">0</td>
-                        <td id="aristocratic-income">300 gp</td>
+                        <td id="aristocratic-percent">0%</td>
+                        <td><input type="number" class="editable-count" id="aristocratic-count" min="0" value="0"></td>
+                        <td><input type="number" class="editable-income" id="aristocratic-income" min="0" value="300"> gp</td>
                         <td id="aristocratic-lifestyle">150 gp</td>
                         <td id="aristocratic-upkeep">100 gp</td>
                         <td id="aristocratic-tax">30 gp</td>
                         <td id="aristocratic-profit">20 gp</td>
                     </tr>
                     <tr>
-                        <td colspan="3"><strong>Total</strong></td>
+                        <td colspan="2"><strong>Total</strong></td>
+                        <td id="total-count">80</td>
                         <td id="total-income">-</td>
                         <td id="total-lifestyle">-</td>
                         <td id="total-upkeep">-</td>
@@ -460,7 +485,7 @@
         </div>
         
         <div class="comparison">
-            <div>Phandalin Atual: 80 habitantes</div>
+            <div>Phandalin Atual: <span id="current-population">80</span> habitantes</div>
             <div>Baldur's Gate: 125.000 habitantes</div>
         </div>
         
@@ -472,9 +497,6 @@
 
     <script>
         // Elementos do DOM
-        const populationInput = document.getElementById('population-input');
-        const populationSlider = document.getElementById('population-slider');
-        const populationValue = document.getElementById('population-value');
         const prosperitySlider = document.getElementById('prosperity-slider');
         const prosperityValue = document.getElementById('prosperity-value');
         const prosperityBonus = document.getElementById('prosperity-bonus');
@@ -490,8 +512,29 @@
         const resetButton = document.getElementById('reset-data');
         const addConstructionButton = document.getElementById('add-construction');
         const constructionList = document.getElementById('construction-list');
+        const totalPopulationValue = document.getElementById('total-population-value');
+        const currentPopulation = document.getElementById('current-population');
         
-        const percentInputs = [
+        // Elementos de contagem de população
+        const countInputs = [
+            document.getElementById('poor-count'),
+            document.getElementById('modest-count'),
+            document.getElementById('comfortable-count'),
+            document.getElementById('wealthy-count'),
+            document.getElementById('aristocratic-count')
+        ];
+        
+        // Elementos de renda editável
+        const incomeInputs = [
+            document.getElementById('poor-income'),
+            document.getElementById('modest-income'),
+            document.getElementById('comfortable-income'),
+            document.getElementById('wealthy-income'),
+            document.getElementById('aristocratic-income')
+        ];
+        
+        // Elementos de percentual (apenas para exibição)
+        const percentElements = [
             document.getElementById('poor-percent'),
             document.getElementById('modest-percent'),
             document.getElementById('comfortable-percent'),
@@ -499,6 +542,7 @@
             document.getElementById('aristocratic-percent')
         ];
         
+        // Elementos para contagem
         const countElements = [
             document.getElementById('poor-count'),
             document.getElementById('modest-count'),
@@ -507,21 +551,12 @@
             document.getElementById('aristocratic-count')
         ];
         
-        // Valores base (sem bônus de prosperidade)
-        const baseIncomes = [6, 30, 60, 120, 300];
-        const baseLifestyles = [3, 15, 30, 60, 150];
-        const baseUpkeeps = [2, 10, 20, 40, 100];
-        const baseProfits = [0.4, 2, 4, 8, 20];
+        // Valores base para estilo de vida, manutenção e lucro (proporções da renda)
+        const lifestyleMultipliers = [0.5, 0.5, 0.5, 0.5, 0.5]; // Estilo de vida = 50% da renda
+        const upkeepMultipliers = [0.333, 0.333, 0.333, 0.333, 0.333]; // Manutenção = 33.3% da renda
+        const profitMultipliers = [0.067, 0.067, 0.067, 0.067, 0.067]; // Lucro = 6.7% da renda (aprox.)
         
-        // Elementos para income, lifestyle, upkeep, profit e tax
-        const incomeElements = [
-            document.getElementById('poor-income'),
-            document.getElementById('modest-income'),
-            document.getElementById('comfortable-income'),
-            document.getElementById('wealthy-income'),
-            document.getElementById('aristocratic-income')
-        ];
-        
+        // Elementos para lifestyle, upkeep, profit e tax
         const lifestyleElements = [
             document.getElementById('poor-lifestyle'),
             document.getElementById('modest-lifestyle'),
@@ -555,6 +590,7 @@
         ];
         
         // Elementos totais
+        const totalCountElement = document.getElementById('total-count');
         const totalIncomeElement = document.getElementById('total-income');
         const totalLifestyleElement = document.getElementById('total-lifestyle');
         const totalUpkeepElement = document.getElementById('total-upkeep');
@@ -569,23 +605,6 @@
             population: 0,
             taxModifier: 0
         };
-        
-        // Sincronizar inputs de população
-        populationInput.addEventListener('input', function() {
-            populationSlider.value = this.value;
-            populationValue.textContent = this.value;
-            updatePopulationCounts();
-            calculateEconomy();
-            saveData();
-        });
-        
-        populationSlider.addEventListener('input', function() {
-            populationInput.value = this.value;
-            populationValue.textContent = this.value;
-            updatePopulationCounts();
-            calculateEconomy();
-            saveData();
-        });
         
         // Atualizar sliders de prosperidade e segurança
         prosperitySlider.addEventListener('input', function() {
@@ -700,10 +719,6 @@
                 localStorage.removeItem('phandalinConstructions');
                 
                 // Resetar valores para os padrões
-                populationInput.value = 80;
-                populationSlider.value = 80;
-                populationValue.textContent = 80;
-                
                 prosperitySlider.value = 25;
                 prosperityValue.textContent = 25;
                 
@@ -716,11 +731,19 @@
                 taxRateSlider.value = 10;
                 taxRateValue.textContent = '10%';
                 
-                percentInputs[0].value = 60;
-                percentInputs[1].value = 30;
-                percentInputs[2].value = 8;
-                percentInputs[3].value = 2;
-                percentInputs[4].value = 0;
+                // Resetar contagens de população
+                countInputs[0].value = 48;
+                countInputs[1].value = 24;
+                countInputs[2].value = 6;
+                countInputs[3].value = 2;
+                countInputs[4].value = 0;
+                
+                // Resetar rendas
+                incomeInputs[0].value = 6;
+                incomeInputs[1].value = 30;
+                incomeInputs[2].value = 60;
+                incomeInputs[3].value = 120;
+                incomeInputs[4].value = 300;
                 
                 document.getElementById('notes').value = '';
                 
@@ -748,26 +771,25 @@
             return total;
         }
         
-        // Atualizar contagens de população por classe
+        // Atualizar contagens de população e percentuais
         function updatePopulationCounts() {
-            const totalPopulation = parseInt(populationInput.value) || 0;
-            let totalPercent = 0;
+            let totalPopulation = 0;
             
-            // Calcular percentual total
-            for (const input of percentInputs) {
-                totalPercent += parseInt(input.value || 0);
+            // Calcular população total
+            for (const input of countInputs) {
+                totalPopulation += parseInt(input.value || 0);
             }
             
-            // Ajustar se total não for 100%
-            if (totalPercent !== 100) {
-                console.log("Atenção: a soma dos percentuais não é 100%");
-            }
+            // Atualizar display da população total
+            totalPopulationValue.textContent = totalPopulation;
+            currentPopulation.textContent = totalPopulation;
+            totalCountElement.textContent = totalPopulation;
             
-            // Atualizar contagens
-            for (let i = 0; i < percentInputs.length; i++) {
-                const percent = parseInt(percentInputs[i].value || 0);
-                const count = Math.round(totalPopulation * percent / 100);
-                countElements[i].textContent = count;
+            // Calcular e atualizar percentuais
+            for (let i = 0; i < countInputs.length; i++) {
+                const count = parseInt(countInputs[i].value || 0);
+                const percent = totalPopulation > 0 ? (count / totalPopulation * 100) : 0;
+                percentElements[i].textContent = percent.toFixed(1) + '%';
             }
         }
         
@@ -909,19 +931,14 @@
             const taxRate = parseInt(taxRateSlider.value) || 10;
             const baseProsperity = parseInt(prosperitySlider.value);
             const baseSecurity = parseInt(securitySlider.value);
-            const basePopulation = parseInt(populationInput.value);
             
             // Aplicar efeitos das construções
             const effectiveProsperity = Math.max(0, Math.min(100, baseProsperity + constructionEffects.prosperity));
             const effectiveSecurity = Math.max(0, Math.min(100, baseSecurity + constructionEffects.security));
-            const effectivePopulation = Math.max(0, basePopulation + constructionEffects.population);
             
             // Atualizar displays com valores efetivos
             prosperityValue.textContent = effectiveProsperity;
             securityValue.textContent = effectiveSecurity;
-            populationValue.textContent = effectivePopulation;
-            populationInput.value = effectivePopulation;
-            populationSlider.value = effectivePopulation;
             
             const prosperityMultiplier = 1 + (Math.floor(effectiveProsperity / 5) * 0.025);
             prosperityBonus.textContent = `Bônus de Renda: +${((prosperityMultiplier - 1) * 100).toFixed(1)}%`;
@@ -935,20 +952,20 @@
             // Calcular manutenção total das construções
             const totalConstructionUpkeep = calculateTotalConstructionUpkeep();
             
-            for (let i = 0; i < percentInputs.length; i++) {
-                const count = parseInt(countElements[i].textContent) || 0;
+            for (let i = 0; i < countInputs.length; i++) {
+                const count = parseInt(countInputs[i].value || 0);
+                const baseIncome = parseFloat(incomeInputs[i].value || 0);
                 
                 // Calcular valores ajustados pela prosperidade
-                const income = baseIncomes[i] * prosperityMultiplier;
-                const lifestyle = baseLifestyles[i] * prosperityMultiplier;
-                const upkeep = baseUpkeeps[i] * prosperityMultiplier;
+                const income = baseIncome * prosperityMultiplier;
+                const lifestyle = income * lifestyleMultipliers[i];
+                const upkeep = income * upkeepMultipliers[i];
                 
-                // Calcular impostos (10% da renda é a base, ajustado pela taxa atual)
+                // Calcular impostos (taxRate % da renda)
                 const tax = income * (taxRate / 100);
                 const profit = income - lifestyle - upkeep - tax;
                 
                 // Atualizar displays
-                incomeElements[i].textContent = `${income.toFixed(1)} gp`;
                 lifestyleElements[i].textContent = `${lifestyle.toFixed(1)} gp`;
                 upkeepElements[i].textContent = `${upkeep.toFixed(1)} gp`;
                 taxElements[i].textContent = `${tax.toFixed(1)} gp`;
@@ -990,10 +1007,17 @@
             }
         }
         
-        // Adicionar listeners para os inputs de percentual
-        for (const input of percentInputs) {
+        // Adicionar listeners para os inputs de contagem e renda
+        for (const input of countInputs) {
             input.addEventListener('input', function() {
                 updatePopulationCounts();
+                calculateEconomy();
+                saveData();
+            });
+        }
+        
+        for (const input of incomeInputs) {
+            input.addEventListener('input', function() {
                 calculateEconomy();
                 saveData();
             });
@@ -1002,16 +1026,20 @@
         // Salvar dados no localStorage
         function saveData() {
             const data = {
-                population: populationInput.value,
                 prosperity: prosperitySlider.value,
                 security: securitySlider.value,
                 gold: goldInput.value,
                 taxRate: taxRateSlider.value,
-                poorPercent: document.getElementById('poor-percent').value,
-                modestPercent: document.getElementById('modest-percent').value,
-                comfortablePercent: document.getElementById('comfortable-percent').value,
-                wealthyPercent: document.getElementById('wealthy-percent').value,
-                aristocraticPercent: document.getElementById('aristocratic-percent').value,
+                poorCount: countInputs[0].value,
+                modestCount: countInputs[1].value,
+                comfortableCount: countInputs[2].value,
+                wealthyCount: countInputs[3].value,
+                aristocraticCount: countInputs[4].value,
+                poorIncome: incomeInputs[0].value,
+                modestIncome: incomeInputs[1].value,
+                comfortableIncome: incomeInputs[2].value,
+                wealthyIncome: incomeInputs[3].value,
+                aristocraticIncome: incomeInputs[4].value,
                 notes: document.getElementById('notes').value,
                 constructions: constructions
             };
@@ -1025,10 +1053,6 @@
                 const data = JSON.parse(savedData);
                 
                 // Restaurar valores dos controles
-                populationInput.value = data.population;
-                populationSlider.value = data.population;
-                populationValue.textContent = data.population;
-                
                 prosperitySlider.value = data.prosperity;
                 prosperityValue.textContent = data.prosperity;
                 
@@ -1041,11 +1065,19 @@
                 taxRateSlider.value = data.taxRate;
                 taxRateValue.textContent = `${data.taxRate}%`;
                 
-                document.getElementById('poor-percent').value = data.poorPercent;
-                document.getElementById('modest-percent').value = data.modestPercent;
-                document.getElementById('comfortable-percent').value = data.comfortablePercent;
-                document.getElementById('wealthy-percent').value = data.wealthyPercent;
-                document.getElementById('aristocratic-percent').value = data.aristocraticPercent;
+                // Restaurar contagens de população
+                countInputs[0].value = data.poorCount || 48;
+                countInputs[1].value = data.modestCount || 24;
+                countInputs[2].value = data.comfortableCount || 6;
+                countInputs[3].value = data.wealthyCount || 2;
+                countInputs[4].value = data.aristocraticCount || 0;
+                
+                // Restaurar rendas
+                incomeInputs[0].value = data.poorIncome || 6;
+                incomeInputs[1].value = data.modestIncome || 30;
+                incomeInputs[2].value = data.comfortableIncome || 60;
+                incomeInputs[3].value = data.wealthyIncome || 120;
+                incomeInputs[4].value = data.aristocraticIncome || 300;
                 
                 document.getElementById('notes').value = data.notes;
                 
